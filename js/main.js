@@ -166,16 +166,28 @@
 
                         // Get the current text and extract the number part
                         var originalText = $this.text();
-                        var countTo = parseInt(originalText.replace(/\D/g, ''), 10);
 
-                        // Determine if the original text contains a "+" or "%"
-                        var symbol = originalText.match(/[+%]/) ? originalText.match(/[+%]/)[0] : '';
+                        // Check if it contains 'L' for Lakhs
+                        var isLakhs = originalText.includes('L');
+
+                        // Separate the "+" symbol
+                        var hasPlus = originalText.includes('+');
+                        var symbol = hasPlus ? '+' : ''; // Keep the "+" symbol separately
+
+                        // Parse the number (handle Lakhs by multiplying by 100,000 if 'L' is present)
+                        var countTo = parseInt(originalText.replace(/\D/g, ''), 10);
+                        if (isLakhs) countTo *= 100000; // Multiply by 100,000 for Lakhs
 
                         $({ Counter: 0 }).animate({ Counter: countTo }, {
                             duration: 4000,
                             easing: 'swing',
                             step: function (curValue) {
-                                $this.text(Math.ceil(curValue) + symbol);
+                                var displayValue = Math.ceil(curValue);
+                                if (isLakhs) {
+                                    displayValue = (displayValue / 100000) + 'L'; // Show in Lakhs
+                                }
+                                // Set the final text with proper symbols
+                                $this.text(displayValue + symbol);
                             }
                         });
                     });
@@ -188,6 +200,7 @@
             offset: "90%"
         });
     };
+
 
 
 
